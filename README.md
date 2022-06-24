@@ -3,7 +3,7 @@ Want to use your Nintendo-compatible GameCube controller adapter on your PC for 
 You're in the right place.
 **GC-X** allows you to control PC games with GameCube controllers as if they were Xbox controllers.
 
-You can download the latest release from the [Releases](https://github.com/skyfloogle/gc-x/releases/latest) tab.
+You can download the latest release from the [Releases](https://github.com/LagMeester4000/gc-x/releases/tag/v0.1.1) tab.
 
 ![](./assets/screenshot.png)
 

@@ -173,7 +173,7 @@ impl Daemon {
                         ax => ((f32::from(ax) / f32::from(i16::MAX) / max_stick_pos).clamp(-1.0, 1.0) * f32::from(i16::MAX)) as i16,
                     };
 
-                    let min_trigger = 40i16;
+                    let min_trigger = 45i16;
                     let max_trigger = 230i16;
                     let deadtrigger = |value: u8, button: GButton| -> u8 {
                         if pad.buttons.contains(button) {
