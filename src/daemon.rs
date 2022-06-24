@@ -163,24 +163,40 @@ impl Daemon {
                         log!(self.logger, "Joysticks centered for P{}", i + 1);
                     }
 
+                    let max_stick_pos = 0.75f32;
                     let deadstick = |ax, center: i16| match transform(ax) - center {
                         ax if ax.abs()
                             < (f32::from(i16::MAX) * f32::from(self.config.lock().deadzone) / 100.0) as _ =>
                         {
                             0
                         },
-                        ax => ax,
+                        ax => ((f32::from(ax) / f32::from(i16::MAX) / max_stick_pos).clamp(-1.0, 1.0) * f32::from(i16::MAX)) as i16,
+                    };
+
+                    let min_trigger = 40i16;
+                    let max_trigger = 230i16;
+                    let deadtrigger = |value: u8, button: GButton| -> u8 {
+                        if pad.buttons.contains(button) {
+                            return 255;
+                        }
+                        let mut f = f32::from(value);
+                        f -= min_trigger as f32;
+                        f /= (max_trigger - min_trigger) as f32;
+                        f = f.clamp(0.0, 1.0);
+                        return (f * u8::MAX as f32) as u8;
                     };
 
                     let report = UsbReport {
                         buttons: buttons.bits(),
-                        left_trigger: pad.trigger_left,
-                        right_trigger: pad.trigger_right,
+                        left_trigger: deadtrigger(pad.trigger_left, GButton::L),
+                        right_trigger: deadtrigger(pad.trigger_right, GButton::R),
                         left_x: deadstick(pad.stick_x, center.0.0),
                         left_y: deadstick(pad.stick_y, center.0.1),
                         right_x: deadstick(pad.cstick_x, center.1.0),
                         right_y: deadstick(pad.cstick_y, center.1.1),
                     };
+                    //log!(self.logger, "{} stick X,   {} percentile stick X", report.left_x, f32::from(report.left_x) / f32::from(i16::MAX));
+                    //log!(self.logger, "{} right trigger,    {} percentile right trigger", report.right_trigger, f32::from(report.right_trigger) / f32::from(u8::MAX));
                     if let Err(e) = target.update(&report) {
                         log!(self.logger, "Failed to update target: {}", e);
                     }
